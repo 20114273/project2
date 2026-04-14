@@ -125,3 +125,13 @@ dkms.conf
 *.dwo
 
 Debug/*
+
+# Microchip Studio / Atmel Studio specifikke filer
+*.vbi
+*.atmelstart
+*.cproj
+*.cppproj.user
+*.componentinfo.xml
+bin/
+obj/
+Release/

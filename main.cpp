@@ -1,13 +1,25 @@
-#include <avr/io.h>
-#include <util/delay.h>
+#include "uart.h"
+#include "ArduinoCompat.h"
 
-int main(void)
-{
-    DDRB |= (1 << PB7);
+// Prototyper
+void lcd_setup_task();
+void lcd_update_status(bool led_on);
 
-    while (1)
-    {
-        PORTB ^= (1 << PB7);
-        _delay_ms(1000);
-    }
+int main(void) {
+	// INITIALISERING
+	InitUART(9600, 8);
+	lcd_setup_task(); // Kalder LCD-opstart
+	DDRB |= 1 << PB7;
+
+	while (1) {
+		// Tænd LED og opdater LCD
+		PORTB |= 1 << PB7;
+		lcd_update_status(true);
+		delay(3000);
+
+		// Sluk LED og opdater LCD
+		PORTB &= ~(1 << PB7);
+		lcd_update_status(false);
+		delay(3000);
+	}
 }
