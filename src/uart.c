@@ -6,10 +6,16 @@
  *************************************************/
 #include <avr/io.h>
 #include <stdlib.h>
+#include <util/delay.h>  // Tilføjet til delays
 #include "uart.h"
 
-// Target CPU frequency
-#define XTAL 16000000UL
+// F_CPU som standard, da avr-libc bibliotekerne kigger efter den
+#ifndef F_CPU
+#define F_CPU 16000000UL
+#endif
+
+// XTAL = F_CPU så BaudRate-beregning stadig virker
+#define XTAL F_CPU
 
 void InitUART(unsigned long BaudRate, unsigned char DataBit)
 {
