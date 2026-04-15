@@ -126,6 +126,8 @@ dkms.conf
 
 Debug/*
 
+.vs/
+
 # Microchip Studio / Atmel Studio specifikke filer
 *.vbi
 *.atmelstart
