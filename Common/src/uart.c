@@ -7,7 +7,7 @@
 #include <avr/io.h>
 #include <stdlib.h>
 #include <util/delay.h>  // Tilføjet til delays
-#include "uart.h"
+#include "../lib/uart.h"
 
 // F_CPU som standard, da avr-libc bibliotekerne kigger efter den
 #ifndef F_CPU
