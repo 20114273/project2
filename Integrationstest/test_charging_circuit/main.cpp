@@ -32,7 +32,7 @@ int main()
 {
     sei();
 
-    InitUART();
+    InitUART(9600, 8);
     init_adc();
     init_timer_1();
     init_timer_3();
@@ -47,7 +47,7 @@ int main()
         send_to_terminal(CAPACITOR, adc_to_millivoltage(get_adc_output(CAPACITOR)));
 
         adjust_charging_pulse_signal(adjust_pwm_signal);
-        send_string("########\r\n");
+        SendString("########\r\n");
         _delay_ms(1000);
     }
     return 0;
