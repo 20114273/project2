@@ -14,11 +14,11 @@
 extern LiquidCrystal lcd; //Bruger objekt lcd defineret i en anden fil (i main.cpp) derfor extern
 
 void opstartBesked(){
-	lcd.clear();
 	lcd.begin(16,2);
+	lcd.clear();
 	lcd.home();
 	lcd.print("Starter system..");
-	
+	_delay_ms(500);
 }
 
 void visBesked(){
@@ -56,21 +56,39 @@ void opdaterBesked(const char* batt_niveau, const char* gen_eff){
 }
 
 uint8_t hentSensorStatus(){
-	while(ReadChar() != "F" || "L" || "T" || "O" ){
-		;
-	}
-	char modtagetStatus = ReadChar();
+	char modtagetStatus = 'K';
 	
-	if (modtagetStatus == "F") {
+	// Vent på at vi modtager et af de gyldige tegn
+	for (int i=0; i<10; i++)
+	{
+		// 1. Tjek om der er data klar på UART-linjen
+		if (CharReady())
+		{
+			char midlertidig = ReadChar();
+			
+			// 2. Hvis tegnet er et af de gyldige, så gem det og afbryd loopet
+			if (midlertidig == 'F' || midlertidig == 'L' || midlertidig == 'T' || midlertidig == 'O')
+			{
+				modtagetStatus = midlertidig;
+				break; // Vi har fundet det vi søgte!
+			}
+		}
+		
+		// 3. Vent lidt (f.eks. 100ms) mellem hvert forsøg,
+		// så vi giver ESP'en tid til at sende noget.
+		_delay_ms(100);
+	}
+	
+	if (modtagetStatus == 'F') {
 		lcd.clear();
 		lcd.setCursor(0,0);
 		lcd.print("Lys: Fejl");
 		lcd.setCursor(0,1);
-		lcd.print("Temp: Fejl: ");
+		lcd.print("Temp: Fejl");
 		return 1;
 	}
 
-	if (modtagetStatus == "L") {
+	if (modtagetStatus == 'L') {
 		lcd.clear();
 		lcd.setCursor(0,0);
 		lcd.print("Lys: Fejl");
@@ -79,21 +97,30 @@ uint8_t hentSensorStatus(){
 		return 1;
 	}
 
-	if (modtagetStatus == "T") {
+	if (modtagetStatus == 'T') {
 		lcd.clear();
 		lcd.setCursor(0,0);
 		lcd.print("Lys: OK");
 		lcd.setCursor(0,1);
 		lcd.print("Temp: Fejl");
 		return 1;
+	}
 
-	if (modtagetStatus == "O") {
+	if (modtagetStatus == 'O') {
 		lcd.clear();
 		lcd.setCursor(0,0);
 		lcd.print("Lys: OK");
 		lcd.setCursor(0,1);
 		lcd.print("Temp: OK");
 		return 0;
-		}
 	}
-}
+		
+	if (modtagetStatus == 'K') {
+		lcd.clear();
+		lcd.setCursor(0,0);
+		lcd.print("Komm.-fejl!");
+		return 1;
+	}
+		
+	return 1;
+	}
