@@ -54,3 +54,7 @@ void opdaterBesked(const char* batt_niveau, const char* gen_eff){
     }
 	
 }
+
+void hentSensorStatus(){
+	
+}
