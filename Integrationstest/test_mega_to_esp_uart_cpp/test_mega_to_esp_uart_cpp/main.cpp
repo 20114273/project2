@@ -1,6 +1,11 @@
 #include <avr/io.h>
 #include "uart.h"
 #include "myStepper.h"
+#include "display_driver.h"
+#include "ArduinoCompat.h"
+#include "LiquidCrystal.h"
+#include <avr/interrupt.h>
+#include <stdlib.h>
 
 int main(void) {
 	// Initialisering
