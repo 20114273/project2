@@ -6,7 +6,7 @@
  *************************************************/
 #include <avr/io.h>
 #include <stdlib.h>
-#include <util/delay.h>  // Tilføjet til delays
+#include <util/delay.h> // Tilfï¿½jet til delays
 #include "../lib/uart.h"
 
 // F_CPU som standard, da avr-libc bibliotekerne kigger efter den
@@ -14,7 +14,7 @@
 #define F_CPU 16000000UL
 #endif
 
-// XTAL = F_CPU så BaudRate-beregning stadig virker
+// XTAL = F_CPU sï¿½ BaudRate-beregning stadig virker
 #define XTAL F_CPU
 
 void InitUART(unsigned long BaudRate, unsigned char DataBit)
@@ -72,4 +72,11 @@ void SendString(const char *Streng)
    {
       SendChar(*Streng);
    }
+}
+
+void SendInteger(unsigned int value)
+{
+   char buffer[10];
+   itoa(value, buffer, 10);
+   SendString(buffer);
 }

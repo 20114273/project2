@@ -19,6 +19,7 @@ extern "C"
     char ReadChar();
     void SendChar(char Tegn);
     void SendString(const char *Streng);
+    void SendInteger(unsigned int value);
 
 #ifdef __cplusplus
 }
