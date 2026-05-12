@@ -10,29 +10,29 @@
 
 // På Mega-boardets digitale header:
 //
-// RS  sidder på pin 12
-// EN  sidder på pin 11
-// D4  sidder på pin 5
-// D5  sidder på pin 4
-// D6  sidder på pin 3
-// D7  sidder på pin 2
+// RS  sidder på pin 53
+// EN  sidder på pin 52
+// D4  sidder på pin 51
+// D5  sidder på pin 50
+// D6  sidder på pin 49
+// D7  sidder på pin 48
 
 static volatile uint8_t *pin_to_port(uint8_t pin)
 {
     switch (pin)
     {
-    case 12:
+    case 53:
         return &PORTB;
-    case 11:
+    case 52:
         return &PORTB;
-    case 5:
-        return &PORTE;
-    case 4:
-        return &PORTG;
-    case 3:
-        return &PORTE;
-    case 2:
-        return &PORTE;
+    case 51:
+        return &PORTB;
+    case 50:
+        return &PORTB;
+    case 49:
+        return &PORTL;
+    case 48:
+        return &PORTL;
     default:
         return 0;
     }
@@ -42,18 +42,18 @@ static volatile uint8_t *pin_to_ddr(uint8_t pin)
 {
     switch (pin)
     {
-    case 12:
+    case 53:
         return &DDRB;
-    case 11:
+    case 52:
         return &DDRB;
-    case 5:
-        return &DDRE;
-    case 4:
-        return &DDRG;
-    case 3:
-        return &DDRE;
-    case 2:
-        return &DDRE;
+    case 51:
+        return &DDRB;
+    case 50:
+        return &DDRB;
+    case 49:
+        return &DDRL;
+    case 48:
+        return &DDRL;
     default:
         return 0;
     }
@@ -63,18 +63,18 @@ static uint8_t pin_to_bit(uint8_t pin)
 {
     switch (pin)
     {
-    case 12:
-        return PB6;
-    case 11:
-        return PB5;
-    case 5:
-        return PE3;
-    case 4:
-        return PG5;
-    case 3:
-        return PE5;
-    case 2:
-        return PE4;
+    case 53:
+        return PB0;
+    case 52:
+        return PB1;
+    case 51:
+        return PB2;
+    case 50:
+        return PB3;
+    case 49:
+        return PL0;
+    case 48:
+        return PL1;
     default:
         return 0;
     }
