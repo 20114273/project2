@@ -1,12 +1,11 @@
 #include "Sensorsystem.h"
 
-
 int v1 = 0;
 int v2 = 0;
 int v3 = 0;
 double voltage = 0;
 double T = 0;
-int check = 0;
+char check_ = 'a';
 char retning = 0;
 int i = 0;
 
@@ -46,18 +45,18 @@ void checkSensors() {
         double avgT = sumT / malinger;
 
             if (avgV1 < 4095 && avgV2 < 4095 && avgV1 > 0 && avgV2 > 0 && avgT > -20 && avgT < 50 ) {
-                check = 3;
+                check_ = 'O';
                 Serial.print("\t Sensor: OK");
             }else if ( avgV1 < 4095 && avgV2 < 4095 && avgV1 > 0 && avgV2 > 0 && avgT < -20 && avgT > 50 ) {
-                check = 2;
+                check_ = 'T';
                 Serial.print("\t Sensor: Temp fejl");
             } else if (avgV1 == 4095 || avgV2 == 4095 || avgV1 == 0 || avgV2 == 0 &&avgT > -20 && avgT < 50 ) {
-            check = 1;
+            check_ = 'L';
                 Serial.print("\t Sensor: LDR fejl");
             }
             else {
-                check = 0;
-                Serial.print("\t Sersor: Fejl");
+                check_ = 'F';
+                Serial.print("\t Sensor: Fejl");
             }
 
         }
@@ -95,7 +94,7 @@ void updateTempSensor() {
 }
 
 void sendData() {
-    Serial1.print(check);
+    Serial1.print(check_);
     Serial1.print(',');
     Serial1.print(retning); // Sender retning
     Serial1.print(",");

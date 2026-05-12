@@ -2,6 +2,8 @@
 #ifndef DISPLAY_DRIVER_H_
 #define DISPLAY_DRIVER_H_
 
+#include <stdint.h>
+
 void visBesked();
 void opstartBesked();
 void opdaterBesked(const char*, const char*);
