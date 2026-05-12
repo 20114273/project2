@@ -1,35 +1,18 @@
-/*
- * test_mega_to_esp_uart.c
- *
- * Created: 15/04/2026 15.24.42
- * Author : sebbl
- */ 
-
+#include "../../Common/lib/uart.h"
 #include <avr/io.h>
-#define F_CPU 16000000UL
-#include <util/delay.h>
-#include <stdio.h>
-
-void uart_putc(char data) {
-	while (!(UCSR0A & (1 << UDRE0))); // Vent på at buffer er tom
-	UDR0 = data;
-}
-
-void uart_puts(const char* s) {
-	while (*s) uart_putc(*s++);
-}
 
 int main(void) {
-	int counter = 0;
-	char buffer[20];
+	InitUART(9600, 8);
+	DDRL |= (1 << PL7); // LED7 på shieldet
 
 	while (1) {
-		// Formater en streng: "Solar: 10", "Solar: 11" osv.
-		sprintf(buffer, "Solar: %d\n", counter++);
+		// Vi bruger din ReadChar() som venter på data
+		char c = ReadChar();
 		
-		// Send det ud gennem ledningen til ESP32
-		uart_puts(buffer);
+		// Hver gang et tegn modtages, skifter LED7 tilstand
+		PORTL ^= (1 << PL7);
 		
-		_delay_ms(1000); // Vent 1 sekund
+		// Send det modtagne tegn tilbage (Echo), så du kan se det i Tera Term
+		SendChar(c);
 	}
 }
