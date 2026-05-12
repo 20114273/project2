@@ -9,7 +9,7 @@
 #include "ArduinoCompat.h"
 #include "LiquidCrystal.h"
 #include "string.h"
-
+#include "uart.h"
 
 extern LiquidCrystal lcd; //Bruger objekt lcd defineret i en anden fil (i main.cpp) derfor extern
 
@@ -55,6 +55,45 @@ void opdaterBesked(const char* batt_niveau, const char* gen_eff){
 	
 }
 
-void hentSensorStatus(){
+uint8_t hentSensorStatus(){
+	while(ReadChar() != "F" || "L" || "T" || "O" ){
+		;
+	}
+	char modtagetStatus = ReadChar();
 	
+	if (modtagetStatus == "F") {
+		lcd.clear();
+		lcd.setCursor(0,0);
+		lcd.print("Lys: Fejl");
+		lcd.setCursor(0,1);
+		lcd.print("Temp: Fejl: ");
+		return 1;
+	}
+
+	if (modtagetStatus == "L") {
+		lcd.clear();
+		lcd.setCursor(0,0);
+		lcd.print("Lys: Fejl");
+		lcd.setCursor(0,1);
+		lcd.print("Temp: OK");
+		return 1;
+	}
+
+	if (modtagetStatus == "T") {
+		lcd.clear();
+		lcd.setCursor(0,0);
+		lcd.print("Lys: OK");
+		lcd.setCursor(0,1);
+		lcd.print("Temp: Fejl");
+		return 1;
+
+	if (modtagetStatus == "O") {
+		lcd.clear();
+		lcd.setCursor(0,0);
+		lcd.print("Lys: OK");
+		lcd.setCursor(0,1);
+		lcd.print("Temp: OK");
+		return 0;
+		}
+	}
 }
