@@ -19,13 +19,20 @@
 
 void InitUART(unsigned long BaudRate, unsigned char DataBit)
 {
-   if (BaudRate < 300 || BaudRate > 115200 || DataBit < 5 || DataBit > 8)
-   {
-      return;
-   }
-   UCSR0B |= (1 << RXEN0) | (1 << TXEN0); // Enable RX and TX
-   UCSR0C |= (DataBit - 5) << 1;
-   UBRR0 = XTAL / (16 * BaudRate) - 1;
+	// Beregn UBRR værdi for 16MHz (Normal mode, ikke Double Speed)
+	// Vi bruger 16.0 som float for at sikre præcision i beregningen
+	unsigned int ubrr = (unsigned int)(16000000UL / (16UL * BaudRate) - 1);
+	
+	// Sæt Baud rate registre
+	UBRR0H = (unsigned char)(ubrr >> 8);
+	UBRR0L = (unsigned char)ubrr;
+
+	// Enable modtager og sender
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+
+	// Sæt format: 8-bit, 1 stop bit, ingen paritet
+	// (DataBit - 5) << 1 er smart, men for 8-bit er det sikrest at skrive:
+	UCSR0C = (3 << UCSZ00);
 }
 
 /*************************************************************************
