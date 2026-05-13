@@ -12,6 +12,13 @@
 #include "uart.h"
 #include <stdlib.h>
 
+// ===== globale variabler =====
+char uartBuffer[50];
+uint8_t uartIndex = 0;
+float temp = 0;
+char sidsteKommando = 'S';
+int ldr = 0;
+
 extern LiquidCrystal lcd; //Bruger objekt lcd defineret i en anden fil (i main.cpp) derfor extern
 
 void opstartBesked(){
@@ -123,64 +130,57 @@ uint8_t hentSensorStatus(){
 	return 1;
 	}
 
-
-// ===== globale variabler =====
-char uartBuffer[50];
-uint8_t uartIndex = 0;
-float temp = 0;
-char sidsteKommando = 'S';
-int ldr = 0;
-
-void opdaterSystemFraUART(void)
+void opdaterSystemFraUART()
 {
 	while (CharReady())
 	{
 		char c = ReadChar();
 
-		// ✅ 1. Kommando
+		// 1. Gem i buffer
+		if (uartIndex < sizeof(uartBuffer) - 1) {
+			uartBuffer[uartIndex++] = c;
+			uartBuffer[uartIndex] = '\0'; // Hold altid strengen termineret
+			} else {
+			uartIndex = 0; // Buffer overflow beskyttelse
+		}
+
+		// 2. Tjek for kommandoer øjeblikkeligt (U, D, S)
 		if (c == 'U' || c == 'D' || c == 'S') {
 			sidsteKommando = c;
 		}
 
-		// ✅ 2. Gem i buffer
-		if (uartIndex < sizeof(uartBuffer) - 1) {
-			uartBuffer[uartIndex++] = c;
-		}
-
-		// ✅ 3. Vent til HELE beskeden er modtaget (indeholder ')
-		if (strchr(uartBuffer, '\''))
+		// 3. Parser når hele pakken er modtaget (vi leder efter slut-tegnet ')
+		if (c == '\'')
 		{
-			// find alle nødvendige dele
 			char *startT = strchr(uartBuffer, '_');
 			char *endT   = strchr(uartBuffer, '-');
-			char *startL = strchr(uartBuffer, '-');
 			char *split  = strchr(uartBuffer, '\'');
 
-			// ✅ kun parse hvis ALT findes korrekt
-			if (startT && endT && startL && split && split > startL)
+			if (startT && endT && split && endT > startT)
 			{
-				uartBuffer[uartIndex] = '\0';
-
-				// ===== TEMP =====
+				// Parse Temperatur
 				char tempStr[10];
 				uint8_t len = endT - startT - 1;
-
 				if (len < sizeof(tempStr)) {
 					strncpy(tempStr, startT + 1, len);
 					tempStr[len] = '\0';
-					temp = strtod(tempStr, NULL);
+					temp = atof(tempStr);
 				}
 
-				// ===== LDR =====
-				int ldr1 = atoi(startL + 1);   // efter '-'
-				int ldr2 = atoi(split + 1);    // efter '''
-
-				ldr = (ldr1 + ldr2) / 2;
-
-				// reset buffer
-				uartIndex = 0;
+				// Parse LDR (Vi antager formatet -LDR1'LDR2)
+				// Finder tallet efter '-' og tallet efter den forrige LDR værdi
+				char *midL = strchr(endT, '-');
+				if(midL) {
+					int ldr1 = atoi(midL + 1);
+					// Her skal du være sikker på hvordan din ESP sender LDR2.
+					// Hvis den sender -LDR1'LDR2, så:
+					int ldr2 = atoi(split + 1);
+					ldr = (ldr1 + ldr2) / 2;
+				}
 			}
+			// Reset buffer efter hver pakke eller forsøg
+			uartIndex = 0;
+			memset(uartBuffer, 0, sizeof(uartBuffer));
 		}
 	}
 }
-
