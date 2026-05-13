@@ -161,6 +161,10 @@
       <SubType>compile</SubType>
       <Link>lib\display_driver.h</Link>
     </Compile>
+    <Compile Include="..\..\..\Common\lib\fremmedlegeme.h">
+      <SubType>compile</SubType>
+      <Link>lib\fremmedlegeme.h</Link>
+    </Compile>
     <Compile Include="..\..\..\Common\lib\LiquidCrystal.h">
       <SubType>compile</SubType>
       <Link>lib\LiquidCrystal.h</Link>
@@ -180,6 +184,10 @@
     <Compile Include="..\..\..\Common\src\display_driver.cpp">
       <SubType>compile</SubType>
       <Link>src\display_driver.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\Common\src\fremmedlegeme.cpp">
+      <SubType>compile</SubType>
+      <Link>src\fremmedlegeme.cpp</Link>
     </Compile>
     <Compile Include="..\..\..\Common\src\LiquidCrystal.cpp">
       <SubType>compile</SubType>

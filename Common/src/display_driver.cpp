@@ -10,6 +10,7 @@
 #include "LiquidCrystal.h"
 #include "string.h"
 #include "uart.h"
+#include <stdlib.h>
 
 extern LiquidCrystal lcd; //Bruger objekt lcd defineret i en anden fil (i main.cpp) derfor extern
 
@@ -59,7 +60,7 @@ uint8_t hentSensorStatus(){
 	char modtagetStatus = 'K';
 	
 	// Vent på at vi modtager et af de gyldige tegn
-	for (int i=0; i<10; i++)
+	for (int i=0; i<21; i++)
 	{
 		// 1. Tjek om der er data klar på UART-linjen
 		if (CharReady())
@@ -70,13 +71,10 @@ uint8_t hentSensorStatus(){
 			if (midlertidig == 'F' || midlertidig == 'L' || midlertidig == 'T' || midlertidig == 'O')
 			{
 				modtagetStatus = midlertidig;
-				break; // Vi har fundet det vi søgte!
+				break; 
 			}
 		}
-		
-		// 3. Vent lidt (f.eks. 100ms) mellem hvert forsøg,
-		// så vi giver ESP'en tid til at sende noget.
-		_delay_ms(100);
+		_delay_ms(50);
 	}
 	
 	if (modtagetStatus == 'F') {
@@ -124,3 +122,65 @@ uint8_t hentSensorStatus(){
 		
 	return 1;
 	}
+
+
+// ===== globale variabler =====
+char uartBuffer[50];
+uint8_t uartIndex = 0;
+float temp = 0;
+char sidsteKommando = 'S';
+int ldr = 0;
+
+void opdaterSystemFraUART(void)
+{
+	while (CharReady())
+	{
+		char c = ReadChar();
+
+		// ✅ 1. Kommando
+		if (c == 'U' || c == 'D' || c == 'S') {
+			sidsteKommando = c;
+		}
+
+		// ✅ 2. Gem i buffer
+		if (uartIndex < sizeof(uartBuffer) - 1) {
+			uartBuffer[uartIndex++] = c;
+		}
+
+		// ✅ 3. Vent til HELE beskeden er modtaget (indeholder ')
+		if (strchr(uartBuffer, '\''))
+		{
+			// find alle nødvendige dele
+			char *startT = strchr(uartBuffer, '_');
+			char *endT   = strchr(uartBuffer, '-');
+			char *startL = strchr(uartBuffer, '-');
+			char *split  = strchr(uartBuffer, '\'');
+
+			// ✅ kun parse hvis ALT findes korrekt
+			if (startT && endT && startL && split && split > startL)
+			{
+				uartBuffer[uartIndex] = '\0';
+
+				// ===== TEMP =====
+				char tempStr[10];
+				uint8_t len = endT - startT - 1;
+
+				if (len < sizeof(tempStr)) {
+					strncpy(tempStr, startT + 1, len);
+					tempStr[len] = '\0';
+					temp = strtod(tempStr, NULL);
+				}
+
+				// ===== LDR =====
+				int ldr1 = atoi(startL + 1);   // efter '-'
+				int ldr2 = atoi(split + 1);    // efter '''
+
+				ldr = (ldr1 + ldr2) / 2;
+
+				// reset buffer
+				uartIndex = 0;
+			}
+		}
+	}
+}
+
