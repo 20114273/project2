@@ -47,7 +47,7 @@ ISR(TIMER4_OVF_vect)
 int main(void)
 {
     // ===== 1. Boot-sekvens (Stabilisering) =====
-    _delay_ms(2000); // Giv systemet ro til at starte op
+    _delay_ms(1000); // Giv systemet ro til at starte op
     
     opstartBesked(); // Vis "Starter system.."
     InitUART(9600, 8);
@@ -63,7 +63,7 @@ int main(void)
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("Genstart system!");
-        while(1); // Lås systemet her ved kritisk fejl
+        while(1); 
     }
 
     // ===== 3. Hardware Initialisering =====
