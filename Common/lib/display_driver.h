@@ -6,13 +6,13 @@
 
 
 
-// globale værdier som main kan bruge
+// globale vï¿½rdier som main kan bruge
 extern float temp;
 extern char sidsteKommando;
 extern int ldr;
 
 // funktion
-void opdaterSystemFraUART(void);
+void opdaterSystemFraUART();
 void visBesked();
 void opstartBesked();
 void opdaterBesked(const char*, const char*);
