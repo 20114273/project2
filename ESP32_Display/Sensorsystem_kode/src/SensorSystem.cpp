@@ -6,9 +6,12 @@ int v2 = 0;
 int v3 = 0;
 double voltage = 0;
 double T = 0;
-int check = 0;
+char check;
 char retning = 0;
 int i = 0;
+int avgV1 = 0;
+int avgV2 = 0;
+int avgT = 0;
 
 
 
@@ -27,11 +30,11 @@ void checkSensors() {
     double sumV2=0;
     double sumT=0;
     int malinger = 10;
-    int i = 0;
 
-    for (i; i < malinger; i++) {
-        int tempV1= analogRead(LDR_1);
-        int tempV2= analogRead(LDR_2);
+
+    for (int i = 0; i < malinger; i++) {
+        double tempV1= analogRead(LDR_1);
+        double tempV2= analogRead(LDR_2);
         double tempV3= analogRead(Temp);
         double tempVoltage = (tempV3 / 4095.0) * 3.3;
         double tempT = (tempVoltage-0.5)/0.01;
@@ -41,26 +44,29 @@ void checkSensors() {
         sumT += tempT;
         delay(10);
     }
-        double avgV1 = sumV1 / malinger;
-        double avgV2 = sumV2 / malinger;
-        double avgT = sumT / malinger;
+    avgV1 = sumV1 / malinger;
+    avgV2 = sumV2 / malinger;
+    avgT = sumT / malinger;
 
-            if (avgV1 < 4095 && avgV2 < 4095 && avgV1 > 0 && avgV2 > 0 && avgT > -20 && avgT < 50 ) {
-                check = 3;
-                Serial.print("\t Sensor: OK");
-            }else if ( avgV1 < 4095 && avgV2 < 4095 && avgV1 > 0 && avgV2 > 0 && avgT < -20 && avgT > 50 ) {
-                check = 2;
-                Serial.print("\t Sensor: Temp fejl");
-            } else if (avgV1 == 4095 || avgV2 == 4095 || avgV1 == 0 || avgV2 == 0 &&avgT > -20 && avgT < 50 ) {
-            check = 1;
-                Serial.print("\t Sensor: LDR fejl");
-            }
-            else {
-                check = 0;
-                Serial.print("\t Sersor: Fejl");
-            }
+    bool ldrOK = (avgV1 < 4095 && avgV1 >= 15 && avgV2 < 4095 && avgV2 >= 15);
+    bool tempOK = (avgT > -20 && avgT < 50);
 
+
+    if (ldrOK && tempOK) {
+            check = 'O'; // Alt er OK
+            Serial.print("\t Sensor: OK");
+        } else if (!ldrOK && !tempOK) {
+            check = 'F'; // Begge fejler
+            Serial.print("\t Sensor: Total Fejl (F)");
+        } else if (!ldrOK) {
+            check = 'L'; // Kun LDR fejler
+            Serial.print("\t Sensor: LDR fejl");
+        }  else if (!tempOK) {
+            check = 'T'; // Kun Temp fejler
+            Serial.print("\t Sensor: Temp fejl");
         }
+    }
+
 
 void sensorData() {
     v1 = analogRead(LDR_1) * 1.047;
@@ -96,8 +102,12 @@ void updateTempSensor() {
 
 void sendData() {
     Serial1.print(check);
-    Serial1.print(',');
-    Serial1.print(retning); // Sender retning
     Serial1.print(",");
-    Serial1.println(T); // Sender Temp
+    Serial1.print(retning); // Sender retning
+    Serial1.print("_");
+    Serial1.print(avgT); // Sender Temp
+    Serial1.print("-");
+    Serial1.print(avgV1);
+    Serial1.print("'");
+    Serial1.println(avgV2);
 }

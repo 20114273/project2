@@ -15,5 +15,5 @@ void loop() {
     printData();
     updateTempSensor();
     sendData();
-    delay(1000);
+    delay(100);
 }

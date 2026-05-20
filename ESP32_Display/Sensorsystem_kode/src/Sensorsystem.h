@@ -12,7 +12,7 @@ extern int v2;
 extern int v3;
 extern double T;
 extern double voltage;
-extern int check;
+extern char check;
 extern char retning;
 extern int i;
 
