@@ -47,12 +47,12 @@ ISR(TIMER4_OVF_vect)
 int main(void)
 {
     // ===== 1. Boot-sekvens (Stabilisering) =====
-    _delay_ms(1000); // Giv systemet ro til at starte op
+    _delay_ms(2000); // Giv systemet ro til at starte op
     
     opstartBesked(); // Vis "Starter system.."
     InitUART(9600, 8);
     
-    // Tøm bufferen for opstarts-støj fra ESP'en
+    // TÃ¸m bufferen for opstarts-stÃ¸j fra ESP'en
     while(CharReady()) ReadChar();
 
     // ===== 2. Sensortjek =====
@@ -63,7 +63,7 @@ int main(void)
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("Genstart system!");
-        while(1); 
+        while(1); // LÃ¥s systemet her ved kritisk fejl
     }
 
     // ===== 3. Hardware Initialisering =====
@@ -74,14 +74,14 @@ int main(void)
     char gen_effStr[5];
 
     _delay_ms(1000);
-    visBesked(); // Skriver "Batteri:" og "Gen.eff:" på LCD
+    visBesked(); // Skriver "Batteri:" og "Gen.eff:" pÃ¥ LCD
 
     // ===== 4. Timer & ADC setup (Ikke-blokerende) =====
     TCNT4 = 31236;
     TCCR4A = 0;
     TCCR4B = 0b00000100; // Prescaler 256 (~0.5 sek interval)
     TIMSK4 = 0b00000001;
-    ADCSRA = 0b11000111; // Tænd ADC med prescaler 128
+    ADCSRA = 0b11000111; // TÃ¦nd ADC med prescaler 128
 
     // Setup af IO til fremmedlegeme-logik (PB5 og PB6)
     DDRB |= (1 << PB5);
@@ -97,14 +97,14 @@ int main(void)
 	    // A. Hent NYESTE data fra ESP32
 	    opdaterSystemFraUART();
 
-	    // B. Opdater LCD og håndtér tidsbaseret logik (Hver 0.5 sek)
+	    // B. Opdater LCD og hÃ¥ndtÃ©r tidsbaseret logik (Hver 0.5 sek)
 	    if (data_klar) {
 		    bat = ((uint32_t)adc_data * 100) / 1023;
 		    itoa(bat, batStr, 10);
 		    itoa(gen_eff, gen_effStr, 10);
 		    opdaterBesked(batStr, gen_effStr);
 
-		    // --- NY LOGIK: Tæller til fremmedlegeme-tjek ---
+		    // --- NY LOGIK: TÃ¦ller til fremmedlegeme-tjek ---
 		    if (varme_aktiv) {
 			    varme_timer++;
 		    }
@@ -112,7 +112,7 @@ int main(void)
 		    data_klar = 0; // Nulstil flag
 	    }
 
-	    // C. Motor-styring (Kører nu flydende uden pauser!)
+	    // C. Motor-styring (KÃ¸rer nu flydende uden pauser!)
 	    if (sidsteKommando == 'U') motor.stepRight();
 	    else if (sidsteKommando == 'D') motor.stepLeft();
 	    else motor.stop();
@@ -123,7 +123,7 @@ int main(void)
 	    if ((float)gen_eff < threshold) {
 		    
 		    if (temp > 22.0) {
-			    // Øjeblikkelig fejl: Varmt + ingen strøm
+			    // Ã˜jeblikkelig fejl: Varmt + ingen strÃ¸m
 			    PORTB |= (1 << PB6);   // Fremmedlegeme ON
 			    PORTB &= ~(1 << PB5);  // Varme OFF
 			    varme_aktiv = 0;
@@ -135,13 +135,13 @@ int main(void)
 			    varme_timer = 0;       // Start tidtagning
 		    }
 		    
-		    // Tjek om der er gået 10 sekunder (20 ticks a 0.5 sek)
+		    // Tjek om der er gÃ¥et 10 sekunder (20 ticks a 0.5 sek)
 		    if (varme_aktiv && varme_timer >= 20) {
 			    if ((float)gen_eff < threshold) {
-				    PORTB |= (1 << PB6);  // Stadig ingen strøm -> Fremmedlegeme!
+				    PORTB |= (1 << PB6);  // Stadig ingen strÃ¸m -> Fremmedlegeme!
 				    PORTB &= ~(1 << PB5); // Sluk varme
 			    }
-			    // Vi lader varme_aktiv være 1, så den ikke "genstarter" opvarmningen hver gang
+			    // Vi lader varme_aktiv vÃ¦re 1, sÃ¥ den ikke "genstarter" opvarmningen hver gang
 		    }
 	    }
 	    else {
