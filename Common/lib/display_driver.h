@@ -6,7 +6,7 @@
 
 
 
-// globale værdier som main kan bruge
+// globale vÃ¦rdier som main kan bruge
 extern float temp;
 extern char sidsteKommando;
 extern int ldr;
